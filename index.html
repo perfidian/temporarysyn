@@ -101,16 +101,6 @@ removeBtn.addEventListener('click', async () => {
     return alert('Revert: ' + (err.reason || err.error?.message));
   }
 
-  // B) Check LP balance & allowance
-  const lp = new ethers.Contract(LP_TOKEN_ADDRESS, ['function balanceOf(address)view returns(uint256)', 'function allowance(address,address)view returns(uint256)'], signer);
-  const bal = await lp.balanceOf(userAddr);
-  const allowance = await lp.allowance(userAddr, CONTRACT_ADDRESS);
-  if (bal.lt(amt)) {
-    return alert('Insufficient LP balance');
-  }
-  if (allowance.lt(amt)) {
-    return alert('Approve LP tokens first');
-  }
 
   // C) Finally send the tx
   const tx = await contract.removeLiquidity(amt, { gasPrice });
