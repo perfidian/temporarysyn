@@ -117,9 +117,9 @@ removeBtn.addEventListener('click', async () => {
     return alert('Failed to read on-chain state: ' + err.message);
   }
 
-//  if (!isActive) {
-//    return alert('Pool isn’t active right now. Try again later.');
-//  }
+  if (!isActive) {
+    return alert('Pool isn’t active right now. Try again later.');
+  }
   if (userShares.lt(sharesToRemove)) {
     return alert(
       `Insufficient shares: you have ${ethers.utils.formatUnits(userShares,18)} but requested ${amtInput}`
