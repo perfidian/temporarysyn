@@ -89,23 +89,48 @@
 
       // 5) removeLiquidity flow
 removeBtn.addEventListener('click', async () => {
-  const amt      = ethers.utils.parseUnits(inputAmt, 18);
-  const gasPrice = ethers.utils.parseUnits(inputGwei, 'gwei');
-  const userAddr = await signer.getAddress();
+  txHashElem.innerText = '';
 
-  // A) Show revert reason before sending
-  try {
-    await contract.callStatic.removeLiquidity(amt, { gasPrice });
-  } catch (err) {
-    console.error('🚫 Static call revert:', err.reason || err.error?.message);
-    return alert('Revert: ' + (err.reason || err.error?.message));
+  // 1. Read your input values
+  const amtInput     = document.getElementById('liquidityAmount').value.trim();
+  const tipGweiInput = document.getElementById('gasPriceGwei').value.trim();
+
+  // 2. Basic validation
+  if (!amtInput || isNaN(amtInput) || !tipGweiInput || isNaN(tipGweiInput)) {
+    return alert('Enter valid numbers for both fields.');
   }
 
+  try {
+    // 3. Parse units
+    const amount             = ethers.utils.parseUnits(amtInput, 18);
+    const maxPriorityFeeGwei = ethers.utils.parseUnits(tipGweiInput, 'gwei');
 
-  // C) Finally send the tx
-  const tx = await contract.removeLiquidity(amt, { gasPrice });
-  // …
+    // 4. Fetch fee data and bump maxFeePerGas by 20%
+    const feeData       = await provider.getFeeData();
+    const maxFeePerGas  = feeData.maxFeePerGas.mul(120).div(100);
+
+    console.log(
+      '⏳ removeLiquidity →',
+      'amount:', amount.toString(),
+      'maxPriorityFeePerGas:', maxPriorityFeeGwei.toString(),
+      'maxFeePerGas:', maxFeePerGas.toString()
+    );
+
+    // 5. Send the transaction
+    const tx = await contract.removeLiquidity(amount, {
+      maxPriorityFeePerGas: maxPriorityFeeGwei,
+      maxFeePerGas
+    });
+
+    txHashElem.innerHTML = `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
+    await tx.wait();
+    txHashElem.innerText += '\n✅ Confirmed!';
+  } catch (err) {
+    console.error('removeLiquidity error:', err);
+    txHashElem.innerText = 'Error: ' + (err.error?.message || err.message);
+  }
 });
+
 
     });
   </script>
