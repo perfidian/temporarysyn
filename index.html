@@ -4,26 +4,25 @@
   <meta charset="UTF-8" />
   <title>Remove Liquidity DApp (Web3Modal)</title>
 
-  <!-- Ethers.js -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <!-- 1) Ethers.js UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
-  <!-- Coinbase Wallet SDK -->
+  <!-- 2) Coinbase Wallet SDK -->
   <script src="https://unpkg.com/@coinbase/wallet-sdk@3.6.0/dist/CoinbaseWalletSDK.min.js"></script>
 
-  <!-- Web3Modal -->
-  <script src="https://unpkg.com/web3modal@1.9.4/dist/index.js"></script>
+  <!-- 3) Web3Modal UMD -->
+  <script src="https://unpkg.com/web3modal@1.9.4/dist/index.umd.js"></script>
 
   <style>
     body { font-family: sans-serif; max-width: 500px; margin: 2rem auto; }
     input, button { width: 100%; padding: .5rem; margin: .5rem 0; }
-    #status { margin: .5rem 0; color: #333; white-space: pre-wrap; }
+    #status { margin: .5rem 0; white-space: pre-wrap; }
     #txHash { margin-top: .5rem; word-break: break-all; }
   </style>
 </head>
 <body>
 
   <h1>Remove Liquidity</h1>
-
   <button id="connectBtn">Connect Wallet</button>
   <div id="status">Wallet not connected</div>
 
@@ -43,66 +42,53 @@
       const removeBtn  = document.getElementById('removeBtn');
       const txHashElem = document.getElementById('txHash');
 
-      // 1) Setup Web3Modal to force Coinbase Wallet
-      const CoinbaseWalletSDK = window.CoinbaseWalletSDK;
-      const Web3Modal       = window.Web3Modal.default;
-
+      // Web3Modal + Coinbase
       const providerOptions = {
         coinbasewallet: {
-          package: CoinbaseWalletSDK,
+          package: window.CoinbaseWalletSDK,
           options: {
-            appName: 'My RemoveLiquidity DApp',
-            darkMode: false
+            appName: 'My RemoveLiquidity DApp'
           }
         }
       };
-
-      const web3Modal = new Web3Modal({
+      const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
         providerOptions
       });
 
       let provider, signer, contract;
-
-      // 2) Contract details
       const CONTRACT_ADDRESS = '0xYourContractAddress';
-      const CONTRACT_ABI     = [
-        'function removeLiquidity(uint256 amount) external'
-      ];
+      const CONTRACT_ABI     = ['function removeLiquidity(uint256 amount) external'];
 
-      // 3) Connect flow
+      // Connect
       connectBtn.addEventListener('click', async () => {
         try {
-          statusElem.innerText = '⏳ Opening wallet modal…';
-          const externalProvider = await web3Modal.connect();                // ^ picks only Coinbase Wallet
+          statusElem.innerText = '⏳ Opening wallet…';
+          const externalProvider = await web3Modal.connect();
           provider = new ethers.providers.Web3Provider(externalProvider, 'any');
           signer   = provider.getSigner();
           contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-
-          const address = await signer.getAddress();
-          statusElem.innerText = '✅ Connected: ' + address;
-          removeBtn.disabled   = false;
+          const addr = await signer.getAddress();
+          statusElem.innerText = '✅ Connected: ' + addr;
+          removeBtn.disabled = false;
         } catch (err) {
           console.error(err);
           statusElem.innerText = '❌ Connect failed: ' + err.message;
         }
       });
 
-      // 4) removeLiquidity flow
+      // removeLiquidity
       removeBtn.addEventListener('click', async () => {
         txHashElem.innerText = '';
         const amt  = document.getElementById('liquidityAmount').value.trim();
         const gwei = document.getElementById('gasPriceGwei').value.trim();
-
         if (!amt || isNaN(amt) || !gwei || isNaN(gwei)) {
-          return alert('Enter valid numbers for both fields.');
+          return alert('Enter valid numbers');
         }
-
         try {
           const amount   = ethers.utils.parseUnits(amt, 18);
           const gasPrice = ethers.utils.parseUnits(gwei, 'gwei');
-
-          const tx = await contract.removeLiquidity(amount, { gasPrice });
+          const tx       = await contract.removeLiquidity(amount, { gasPrice });
           txHashElem.innerHTML = `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
           await tx.wait();
           txHashElem.innerText += '\n✅ Confirmed!';
