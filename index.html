@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Security-Policy"
         content="script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval';">
 
-  <title>Remove Liquidity DApp 11</title>
+  <title>Remove Liquidity DApp 12</title>
 
   <!-- Ethers.js UMD build -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -21,7 +21,7 @@
 </head>
 <body>
 
-  <h1>Remove Liquidity 11</h1>
+  <h1>Remove Liquidity 12</h1>
 
   <button id="connectBtn">Connect Coinbase Wallet</button>
   <div id="status">Wallet not connected</div>
@@ -93,88 +93,94 @@
 removeBtn.addEventListener('click', async () => {
   txHashElem.innerText = '';
 
-  // 1. Read & validate inputs
+  // 1) Read & validate inputs
   const amtInput     = document.getElementById('liquidityAmount').value.trim();
   const tipGweiInput = document.getElementById('gasPriceGwei').value.trim();
   if (!amtInput || isNaN(amtInput) || !tipGweiInput || isNaN(tipGweiInput)) {
     return alert('Enter valid numbers for both fields.');
   }
 
-  // 2. Parse your amounts
+  // 2) Parse values
   const sharesToRemove    = ethers.utils.parseUnits(amtInput, 18);
   const maxPriorityFeeGas = ethers.utils.parseUnits(tipGweiInput, 'gwei');
   const feeData           = await provider.getFeeData();
-  const maxFeePerGas      = feeData.maxFeePerGas.mul(120).div(100); // bump 20%
+  const maxFeePerGas      = feeData.maxFeePerGas.mul(120).div(100); // bump +20%
 
-  // 3. Pre-checks: on-chain user shares & pool active flag
+  // 3) Pre-checks: user shares & pool active
   let userAddr, userShares, isActive;
   try {
     userAddr   = await signer.getAddress();
     userShares = await contract.getUserShares(userAddr);
     isActive   = await contract.getActive();
   } catch (err) {
-    console.error('Pre-check error:', err);
+    console.error('Pre-check failed:', err);
     return alert('Failed to read on-chain state: ' + err.message);
   }
 
-// if (!isActive) {
-//   return alert('Pool isn’t active right now. Try again later.');
-// }
-
+  if (!isActive) {
+    return alert('Pool isn’t active right now. Try again later.');
+  }
   if (userShares.lt(sharesToRemove)) {
     return alert(
       `Insufficient shares: you have ${ethers.utils.formatUnits(userShares,18)} but requested ${amtInput}`
     );
   }
 
-  // 4. Estimate gasLimit and ensure user has enough ETH
-  let gasLimit, ethBalance;
+  // 4) Try to estimate gas, fallback on unpredictable‐gas errors
+  let gasLimit;
   try {
-    gasLimit    = await contract.estimateGas.removeLiquidity(sharesToRemove);
-    ethBalance  = await provider.getBalance(userAddr);
+    gasLimit = await contract.estimateGas.removeLiquidity(sharesToRemove);
+    console.log('✅ Gas estimate:', gasLimit.toString());
   } catch (err) {
-    console.error('Estimate or balance check failed:', err);
-    return alert('Could not estimate gas or fetch balance: ' + err.message);
+    console.warn('⚠️ Gas estimate failed, falling back to 300 000:', err);
+    gasLimit = ethers.BigNumber.from(300000);
   }
 
-  const requiredEth = gasLimit.mul(maxFeePerGas);
-  if (ethBalance.lt(requiredEth)) {
-    return alert(
-      `Insufficient ETH for gas: you have ${ethers.utils.formatEther(ethBalance)} ETH but need about ${ethers.utils.formatEther(requiredEth)} ETH`
-    );
-  }
-
-  // 5. callStatic WITHOUT gas overrides to surface revert reason
+  // 5) Optional: check ETH balance for gas
   try {
-    await contract.callStatic.removeLiquidity(sharesToRemove);
-  } catch (staticErr) {
-    console.error('Simulation revert:', staticErr);
-    return alert(
-      'Reverted on simulation' +
-      (staticErr.reason
-         ? ': ' + staticErr.reason
-         : '; no reason string returned')
-    );
+    const ethBalance = await provider.getBalance(userAddr);
+    const needed     = gasLimit.mul(maxFeePerGas);
+    if (ethBalance.lt(needed)) {
+      return alert(
+        `Not enough ETH for gas. You have ${ethers.utils.formatEther(ethBalance)} ETH, need ~${ethers.utils.formatEther(needed)} ETH.`
+      );
+    }
+  } catch (err) {
+    console.warn('Could not fetch balance:', err);
   }
 
-  // 6. Send the real EIP-1559 transaction
+  // 6) callStatic to catch any other revert (no reason string if bare revert)
   try {
-    const tx = await contract.removeLiquidity(sharesToRemove, {
-      maxPriorityFeePerGas: maxPriorityFeeGas,
+    await contract.callStatic.removeLiquidity(sharesToRemove, {
+      maxPriorityFeePerGas,
       maxFeePerGas,
       gasLimit
     });
+  } catch (staticErr) {
+    console.error('🚫 Simulation revert:', staticErr);
+    return alert(
+      'Reverted on static simulation' +
+      (staticErr.reason ? ': ' + staticErr.reason : '; no reason returned')
+    );
+  }
 
+  // 7) Send the real EIP-1559 tx
+  try {
+    const tx = await contract.removeLiquidity(sharesToRemove, {
+      maxPriorityFeePerGas,
+      maxFeePerGas,
+      gasLimit
+    });
     txHashElem.innerHTML =
       `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
     await tx.wait();
     txHashElem.innerText += '\n✅ Confirmed!';
   } catch (err) {
-    console.error('removeLiquidity error:', err);
-    txHashElem.innerText =
-      'Error: ' + (err.error?.message || err.message || err);
+    console.error('❌ removeLiquidity error:', err);
+    txHashElem.innerText = 'Error: ' + (err.error?.message || err.message);
   }
 });
+
 
 
 
