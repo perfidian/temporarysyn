@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Remove Liquidity DApp 5</title>
+  <title>Remove Liquidity DApp 6</title>
 
   <!-- 1) Ethers.js UMD -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -10,9 +10,9 @@
   <!-- 2) Coinbase Wallet SDK -->
   <script src="https://unpkg.com/@coinbase/wallet-sdk@3.6.0/dist/CoinbaseWalletSDK.min.js"></script>
 
-  <!-- 3) Web3Modal UMD (this one defines window.Web3Modal) -->
+  <!-- 3) Web3Modal UMD (exposes window.Web3Modal) -->
   <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.4/dist/index.js"></script>
-  
+
   <style>
     body { font-family: sans-serif; max-width: 500px; margin: 2rem auto; }
     input, button { width: 100%; padding: .5rem; margin: .5rem 0; }
@@ -20,10 +20,10 @@
     #txHash { word-break: break-all; }
   </style>
 </head>
-
 <body>
 
-  <h1>Remove Liquidity</h1>
+  <h1>Remove Liquidity 6</h1>
+
   <button id="connectBtn">Connect Wallet</button>
   <div id="status">Wallet not connected</div>
 
@@ -38,71 +38,79 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // QUICK CHECK: what globals do we actually have?
-      console.log('🔎 window.ethers   =', window.ethers);
+      // Debug: check that libs loaded
+      console.log('🔎 window.ethers =', window.ethers);
       console.log('🔎 window.CoinbaseWalletSDK =', window.CoinbaseWalletSDK);
       console.log('🔎 window.Web3Modal =', window.Web3Modal);
-      console.log('ℹ️ window.Web3Modal =', window.Web3Modal);
-
 
       const connectBtn = document.getElementById('connectBtn');
       const statusElem = document.getElementById('status');
       const removeBtn  = document.getElementById('removeBtn');
       const txHashElem = document.getElementById('txHash');
 
-      // Setup Web3Modal with Coinbase only
+      // 1) Configure Web3Modal to use Coinbase Wallet
       const providerOptions = {
         coinbasewallet: {
           package: window.CoinbaseWalletSDK,
-          options: { appName: 'RemoveLiquidity DApp' }
+          options: {
+            appName: 'RemoveLiquidity DApp'
+          }
         }
       };
 
-      // IMPORTANT: we pull the constructor straight from window.Web3Modal
-      const Web3Modal = window.Web3Modal;
-      if (!Web3Modal) {
-        statusElem.innerText = '❌ Web3Modal not found on window';
+      // Ensure Web3Modal is available
+      if (!window.Web3Modal) {
+        statusElem.innerText = '❌ Web3Modal library not loaded';
         return;
       }
-
-      const web3Modal = new Web3Modal({
+      const web3Modal = new window.Web3Modal({
         cacheProvider: false,
         providerOptions
       });
 
-      let provider, signer, contract;
+      // 2) Contract details – replace with your own
       const CONTRACT_ADDRESS = '0xYourContractAddress';
-      const CONTRACT_ABI     = ['function removeLiquidity(uint256 amount) external'];
+      const CONTRACT_ABI     = [
+        'function removeLiquidity(uint256 amount) external'
+      ];
 
+      let provider, signer, contract;
+
+      // 3) Connect button logic
       connectBtn.addEventListener('click', async () => {
         try {
           statusElem.innerText = '⏳ Opening wallet modal…';
-          // THIS will show you ONLY Coinbase Wallet
-          const externalProvider = await web3Modal.connect();
+          const externalProvider = await web3Modal.connect();  
           provider = new ethers.providers.Web3Provider(externalProvider, 'any');
           signer   = provider.getSigner();
           contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
           const address = await signer.getAddress();
           statusElem.innerText = '✅ Connected: ' + address;
-          removeBtn.disabled = false;
+          removeBtn.disabled   = false;
         } catch (err) {
           console.error('Connect failed:', err);
           statusElem.innerText = '❌ Connect failed: ' + err.message;
         }
       });
 
+      // 4) removeLiquidity button logic
       removeBtn.addEventListener('click', async () => {
         txHashElem.innerText = '';
         const amt  = document.getElementById('liquidityAmount').value.trim();
         const gwei = document.getElementById('gasPriceGwei').value.trim();
+
         if (!amt || isNaN(amt) || !gwei || isNaN(gwei)) {
           return alert('Enter valid numbers for both fields.');
         }
+
         try {
+          // parse inputs
           const amount   = ethers.utils.parseUnits(amt, 18);
           const gasPrice = ethers.utils.parseUnits(gwei, 'gwei');
-          console.log('⏳ Sending removeLiquidity', amount.toString(), 'gasPrice', gasPrice.toString());
+          console.log('⏳ Sending removeLiquidity', amount.toString(), 'with gasPrice', gasPrice.toString());
+
+          // send tx
           const tx = await contract.removeLiquidity(amount, { gasPrice });
           txHashElem.innerHTML = `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
           await tx.wait();
