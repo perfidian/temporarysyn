@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Remove Liquidity DApp (Fixed Web3Modal)</title>
+  <title>Remove Liquidity DApp 5</title>
 
   <!-- 1) Ethers.js UMD -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -10,9 +10,9 @@
   <!-- 2) Coinbase Wallet SDK -->
   <script src="https://unpkg.com/@coinbase/wallet-sdk@3.6.0/dist/CoinbaseWalletSDK.min.js"></script>
 
-  <!-- 3) Web3Modal UMD -->
-  <script src="https://unpkg.com/web3modal@1.9.4/dist/index.umd.js"></script>
-
+  <!-- 3) Web3Modal UMD (this one defines window.Web3Modal) -->
+  <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.4/dist/index.js"></script>
+  
   <style>
     body { font-family: sans-serif; max-width: 500px; margin: 2rem auto; }
     input, button { width: 100%; padding: .5rem; margin: .5rem 0; }
@@ -20,6 +20,7 @@
     #txHash { word-break: break-all; }
   </style>
 </head>
+
 <body>
 
   <h1>Remove Liquidity</h1>
@@ -41,6 +42,8 @@
       console.log('🔎 window.ethers   =', window.ethers);
       console.log('🔎 window.CoinbaseWalletSDK =', window.CoinbaseWalletSDK);
       console.log('🔎 window.Web3Modal =', window.Web3Modal);
+      console.log('ℹ️ window.Web3Modal =', window.Web3Modal);
+
 
       const connectBtn = document.getElementById('connectBtn');
       const statusElem = document.getElementById('status');
