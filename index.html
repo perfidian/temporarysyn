@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Security-Policy"
         content="script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval';">
 
-  <title>Remove Liquidity DApp 10</title>
+  <title>Remove Liquidity DApp 11</title>
 
   <!-- Ethers.js UMD build -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -21,7 +21,7 @@
 </head>
 <body>
 
-  <h1>Remove Liquidity 10</h1>
+  <h1>Remove Liquidity 11</h1>
 
   <button id="connectBtn">Connect Coinbase Wallet</button>
   <div id="status">Wallet not connected</div>
@@ -67,7 +67,9 @@
       // 3) YOUR CONTRACT (replace with yours)
       const CONTRACT_ADDRESS = '0xFf40827Ee1c4Eb6052044101E1C6E28DBe1440e3';
       const CONTRACT_ABI     = [
-        'function removeLiquidity(uint256 amount) external'
+{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint256","name":"eth","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"shares","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"shareprice","type":"uint256"}],"name":"LiquidityAdd","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint256","name":"eth","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"shares","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"shareprice","type":"uint256"}],"name":"LiquidityRemove","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"bullPrice","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bearPrice","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bullLiqEquity","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bearLiqEquity","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bullEquity","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bearEquity","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"roundId","type":"uint256"},{"indexed":false,"internalType":"bool","name":"updated","type":"bool"}],"name":"PriceUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"address","name":"token","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokensMinted","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"ethin","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"fees","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bonus","type":"uint256"}],"name":"TokenBuy","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"address","name":"token","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokensBurned","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"ethout","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"fees","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"penalty","type":"uint256"}],"name":"TokenSell","type":"event"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"addLiquidity","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"roundId","type":"uint256"}],"name":"advanceRoundId","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getActive","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getBalanceEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getBearToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getBullToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getBuyFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getDepositEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"getEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLatestRoundId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"getLiqEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLiqFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"getLiqTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getMultiplier","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"getPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSellFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"getTokenEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"getTokenLiqEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTotalEquity","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTotalLiqShares","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getUserShares","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"priceAggregator","outputs":[{"internalType":"contract priceAggregatorInterface","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"priceCalculator","outputs":[{"internalType":"contract priceCalculatorInterface","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"shares","type":"uint256"}],"name":"removeLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"state","type":"bool"},{"internalType":"uint256","name":"roundId","type":"uint256"}],"name":"setActive","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"setBuyFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"setSellFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"bearAddress","type":"address"},{"internalType":"address","name":"bullAddress","type":"address"}],"name":"setTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"synStakingProxy","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"account","type":"address"}],"name":"tokenBuy","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address payable","name":"account","type":"address"}],"name":"tokenSell","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"updatePrice","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"vaultHelper","outputs":[{"internalType":"contract vaultHelperInterface","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}
+
+
       ];
 
       // 4) Connect flow
@@ -91,45 +93,66 @@
 removeBtn.addEventListener('click', async () => {
   txHashElem.innerText = '';
 
-  // 1. Read your input values
+  // 1. Read & validate inputs
   const amtInput     = document.getElementById('liquidityAmount').value.trim();
   const tipGweiInput = document.getElementById('gasPriceGwei').value.trim();
-
-  // 2. Basic validation
   if (!amtInput || isNaN(amtInput) || !tipGweiInput || isNaN(tipGweiInput)) {
     return alert('Enter valid numbers for both fields.');
   }
 
+  // 2. Parse values
+  const amount             = ethers.utils.parseUnits(amtInput, 18);
+  const maxPriorityFee     = ethers.utils.parseUnits(tipGweiInput, 'gwei');
+  const feeData            = await provider.getFeeData();
+  const maxFeePerGas       = feeData.maxFeePerGas.mul(120).div(100);
+
+  // 3. Static-call to get revert reason (if any)
   try {
-    // 3. Parse units
-    const amount             = ethers.utils.parseUnits(amtInput, 18);
-    const maxPriorityFeeGwei = ethers.utils.parseUnits(tipGweiInput, 'gwei');
-
-    // 4. Fetch fee data and bump maxFeePerGas by 20%
-    const feeData       = await provider.getFeeData();
-    const maxFeePerGas  = feeData.maxFeePerGas.mul(120).div(100);
-
-    console.log(
-      '⏳ removeLiquidity →',
-      'amount:', amount.toString(),
-      'maxPriorityFeePerGas:', maxPriorityFeeGwei.toString(),
-      'maxFeePerGas:', maxFeePerGas.toString()
+    await contract.callStatic.removeLiquidity(amount, {
+      maxPriorityFeePerGas: maxPriorityFee,
+      maxFeePerGas
+    });
+  } catch (staticErr) {
+    console.error('🚫 Static call revert:', staticErr);
+    return alert(
+      'Revert reason: ' +
+      (staticErr.reason || staticErr.error?.message || staticErr)
     );
+  }
 
-    // 5. Send the transaction
+  // 4. Check user’s on-chain shares
+  let userAddr, userShares;
+  try {
+    userAddr    = await signer.getAddress();
+    userShares  = await contract.getUserShares(userAddr);
+  } catch (err) {
+    console.error('❌ getUserShares error:', err);
+    return alert('Failed to fetch your share balance: ' + (err.message || err));
+  }
+  if (userShares.lt(amount)) {
+    return alert(
+      `Insufficient shares: you have ${userShares.toString()} but requested ${amount.toString()}`
+    );
+  }
+
+  // 5. All clear → send the real tx
+  try {
     const tx = await contract.removeLiquidity(amount, {
-      maxPriorityFeePerGas: maxPriorityFeeGwei,
+      maxPriorityFeePerGas: maxPriorityFee,
       maxFeePerGas
     });
 
-    txHashElem.innerHTML = `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
+    txHashElem.innerHTML =
+      `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
     await tx.wait();
     txHashElem.innerText += '\n✅ Confirmed!';
   } catch (err) {
-    console.error('removeLiquidity error:', err);
-    txHashElem.innerText = 'Error: ' + (err.error?.message || err.message);
+    console.error('❌ removeLiquidity error:', err);
+    txHashElem.innerText =
+      'Error: ' + (err.error?.message || err.message || err);
   }
 });
+
 
 
     });
