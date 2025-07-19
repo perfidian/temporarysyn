@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Allow eval for extension injection -->
+  <meta http-equiv="Content-Security-Policy"
+        content="script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval';">
+  …
   <meta charset="UTF-8" />
   <title>Remove Liquidity DApp</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
