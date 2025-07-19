@@ -30,12 +30,14 @@
 
   <script>
     (async () => {
-      // 1. Robust provider detection
+      // 1. Robust Coinbase Wallet detection
       function getCoinbaseProvider() {
         if (window.ethereum?.providers?.length) {
+          console.log('🔍 Multiple injected providers:', window.ethereum.providers);
           return window.ethereum.providers.find(p => p.isCoinbaseWallet);
         }
         if (window.ethereum?.isCoinbaseWallet) {
+          console.log('🔍 Single Coinbase Wallet provider detected');
           return window.ethereum;
         }
         return null;
@@ -48,34 +50,35 @@
       const txHashElem  = document.getElementById('txHash');
 
       if (!cbProvider) {
-        statusElem.innerText = 'Coinbase Wallet extension not found or disabled.';
+        statusElem.innerText = '❌ Coinbase Wallet extension not found or disabled.';
+        console.error('No Coinbase Wallet provider');
         return;
       }
 
-      // 2. Setup ethers provider & placeholders
-      const provider = new ethers.providers.Web3Provider(cbProvider);
+      // 2. Create ethers provider from Coinbase-specific provider
+      const provider = new ethers.providers.Web3Provider(cbProvider, 'any');
       let signer, contract;
 
-      // 3. Your contract details
+      // 3. Your contract details (replace with yours)
       const CONTRACT_ADDRESS = '0xYourContractAddress';
       const CONTRACT_ABI = [
         'function removeLiquidity(uint256 amount) external'
       ];
 
-      // 4. Connect logic
+      // 4. Connect button logic
       connectBtn.addEventListener('click', async () => {
-        console.log('🖱️ Connect button clicked');
-        console.log('Detected provider:', cbProvider);
+        console.log('🖱️ Connect clicked, cbProvider =', cbProvider);
 
         try {
-          await provider.send('eth_requestAccounts', []);
-          console.log('✅ eth_requestAccounts succeeded');
+          // Use cbProvider.request instead of provider.send
+          const accounts = await cbProvider.request({ method: 'eth_requestAccounts' });
+          console.log('✅ eth_requestAccounts →', accounts);
 
           signer = provider.getSigner();
           contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
           const userAddr = await signer.getAddress();
-          statusElem.innerText = 'Connected: ' + userAddr;
+          statusElem.innerText = '✅ Connected: ' + userAddr;
           removeBtn.disabled = false;
         } catch (err) {
           console.error('❌ Connection error', err);
@@ -90,16 +93,18 @@
         const gwei = document.getElementById('gasPriceGwei').value.trim();
 
         if (!amt || isNaN(amt) || !gwei || isNaN(gwei)) {
-          alert('Enter valid numbers for both fields.');
-          return;
+          return alert('Enter valid numbers for both fields.');
         }
 
         try {
           const amount   = ethers.utils.parseUnits(amt, 18);
           const gasPrice = ethers.utils.parseUnits(gwei, 'gwei');
 
+          console.log('Sending removeLiquidity(', amount.toString(), ') with gasPrice=', gasPrice.toString());
           const tx = await contract.removeLiquidity(amount, { gasPrice });
-          txHashElem.innerHTML = `Transaction sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
+          console.log('Tx sent:', tx.hash);
+
+          txHashElem.innerHTML = `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
           await tx.wait();
           txHashElem.innerText += '\n✅ Confirmed!';
         } catch (err) {
