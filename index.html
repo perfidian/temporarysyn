@@ -89,46 +89,32 @@
 
       // 5) removeLiquidity flow
 removeBtn.addEventListener('click', async () => {
-  txHashElem.innerText = '';
-  const amt  = document.getElementById('liquidityAmount').value.trim();
-  const tipGwei = document.getElementById('gasPriceGwei').value.trim();
+  const amt      = ethers.utils.parseUnits(inputAmt, 18);
+  const gasPrice = ethers.utils.parseUnits(inputGwei, 'gwei');
+  const userAddr = await signer.getAddress();
 
-  if (!amt || isNaN(amt) || !tipGwei || isNaN(tipGwei)) {
-    return alert('Enter valid numbers for both fields.');
-  }
-
+  // A) Show revert reason before sending
   try {
-    // 1) Parse your inputs
-    const amount = ethers.utils.parseUnits(amt, 18);
-    const tip    = ethers.utils.parseUnits(tipGwei, 'gwei');
-
-    // 2) Fetch current network fees
-    const feeData = await provider.getFeeData();
-    // feeData.maxFeePerGas is suggestion: bump it by 20%
-    const maxFeePerGas         = feeData.maxFeePerGas.mul(120).div(100);
-    const maxPriorityFeePerGas = tip;
-
-    console.log(
-      'Sending removeLiquidity with',
-      'amount=', amount.toString(),
-      'maxPriorityFeePerGas=', maxPriorityFeePerGas.toString(),
-      'maxFeePerGas=', maxFeePerGas.toString()
-    );
-
-    // 3) Send your tx with EIP-1559 fields
-    const tx = await contract.removeLiquidity(amount, {
-      maxPriorityFeePerGas,
-      maxFeePerGas
-    });
-
-    txHashElem.innerHTML =
-      `Sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
-    await tx.wait();
-    txHashElem.innerText += '\n✅ Confirmed!';
+    await contract.callStatic.removeLiquidity(amt, { gasPrice });
   } catch (err) {
-    console.error('removeLiquidity error:', err);
-    txHashElem.innerText = 'Error: ' + (err.error?.message || err.message);
+    console.error('🚫 Static call revert:', err.reason || err.error?.message);
+    return alert('Revert: ' + (err.reason || err.error?.message));
   }
+
+  // B) Check LP balance & allowance
+  const lp = new ethers.Contract(LP_TOKEN_ADDRESS, ['function balanceOf(address)view returns(uint256)', 'function allowance(address,address)view returns(uint256)'], signer);
+  const bal = await lp.balanceOf(userAddr);
+  const allowance = await lp.allowance(userAddr, CONTRACT_ADDRESS);
+  if (bal.lt(amt)) {
+    return alert('Insufficient LP balance');
+  }
+  if (allowance.lt(amt)) {
+    return alert('Approve LP tokens first');
+  }
+
+  // C) Finally send the tx
+  const tx = await contract.removeLiquidity(amt, { gasPrice });
+  // …
 });
 
     });
