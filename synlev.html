@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Remove Liquidity DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: 2rem auto; }
+    input, button { width: 100%; padding: .5rem; margin: .5rem 0; }
+    #status { margin: .5rem 0; color: #333; }
+  </style>
+</head>
+<body>
+
+  <h1>Remove Liquidity</h1>
+
+  <button id="connectBtn">Connect Coinbase Wallet</button>
+  <div id="status">Wallet not connected</div>
+
+  <label>Amount of LP tokens to remove:</label>
+  <input type="text" id="liquidityAmount" placeholder="e.g. 1.234" />
+
+  <label>Gas Price (gwei):</label>
+  <input type="text" id="gasPriceGwei" placeholder="e.g. 100" />
+
+  <button id="removeBtn" disabled>Remove Liquidity</button>
+
+  <div id="txHash"></div>
+
+  <script>
+    (async () => {
+      // 1. Detect Coinbase Wallet
+      if (!window.ethereum || !window.ethereum.isCoinbaseWallet) {
+        document.getElementById('status').innerText =
+          'Install Coinbase Wallet extension and reload.';
+        return;
+      }
+
+      // 2. Prepare Ethers.js provider and signer
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      let signer, contract;
+
+      // Replace with your contract's address and ABI
+      const CONTRACT_ADDRESS = '0xYourContractAddress';
+      const CONTRACT_ABI = [
+        // Minimal ABI for removeLiquidity, adjust parameters/types
+        'function removeLiquidity(uint256 amount) external'
+      ];
+
+      // 3. Connect button logic
+      document.getElementById('connectBtn').onclick = async () => {
+        try {
+          await provider.send('eth_requestAccounts', []);
+          signer = provider.getSigner();
+          contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+          const userAddr = await signer.getAddress();
+          document.getElementById('status').innerText =
+            'Connected: ' + userAddr;
+          document.getElementById('removeBtn').disabled = false;
+        } catch (err) {
+          document.getElementById('status').innerText =
+            'Connection failed: ' + err.message;
+        }
+      };
+
+      // 4. removeLiquidity button logic
+      document.getElementById('removeBtn').onclick = async () => {
+        const amt = document.getElementById('liquidityAmount').value.trim();
+        const gwei  = document.getElementById('gasPriceGwei').value.trim();
+
+        if (!amt || isNaN(amt) || !gwei || isNaN(gwei)) {
+          alert('Enter valid numbers for both fields.');
+          return;
+        }
+
+        try {
+          // Convert inputs
+          const amount   = ethers.utils.parseUnits(amt, 18);
+          const gasPrice = ethers.utils.parseUnits(gwei, 'gwei');
+
+          // Send transaction with custom gasPrice
+          const tx = await contract.removeLiquidity(amount, {
+            gasPrice: gasPrice
+          });
+
+          document.getElementById('txHash').innerHTML =
+            `Transaction sent: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
+
+          // Wait for confirmation
+          await tx.wait();
+          document.getElementById('txHash').innerText += '\n✅ Confirmed!';
+        } catch (err) {
+          document.getElementById('txHash').innerText =
+            'Error: ' + (err.error?.message || err.message);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
